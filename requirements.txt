@@ -1,0 +1,17 @@
+asyncio==3.4.3
+beautifulsoup4==4.9.3
+certifi==2020.12.5
+chardet==4.0.0
+fake-useragent==0.1.11
+fuzzywuzzy==0.18.0
+idna==2.10
+pyffmpeg==2.0.1
+pynput==1.7.3
+PyOgg==0.6.14a1
+pyTelegramBotAPI==3.7.6
+python-Levenshtein==0.12.2
+requests==2.25.1
+six==1.15.0
+soupsieve==2.2
+SpeechRecognition==3.8.1
+urllib3==1.26.3
