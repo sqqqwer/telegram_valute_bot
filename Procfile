@@ -1,1 +1,1 @@
-worker: python3 telegbot.py
+worker: python3 main.py
