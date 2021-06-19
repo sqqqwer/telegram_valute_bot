@@ -22,6 +22,18 @@ bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start', 'help'])
 def bitpokaz(message):
+	print('''Commands:
+  /help - show all commands
+  /btk - show bitcoin
+  /usd - show usd
+  /eur - show eur
+  /all - show all valute
+  /author - show author''')
+
+
+
+@bot.message_handler(commands=['all'])
+def bitpokaz(message):
 	print('произошла обработка показа всех валют')
 
 	bot.send_message(message.chat.id, valut.get_bitok() )
