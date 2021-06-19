@@ -1,5 +1,5 @@
 # Telegram Valute Bot with Speech Recognition
-Python telegram valute bot with parsing and speech recognition(bot work on Heroku).
+Currency bot on Telegram with parsing and speech recognition (works on Heroku, language: Python).
 
 Commands:
   /help - show all commands
