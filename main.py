@@ -22,7 +22,7 @@ bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start', 'help'])
 def bitpokaz(message):
-	print('''Commands:
+	bot.send_message(message.chat.id,'''Commands:
 	/help - show all commands
 	/btk - show bitcoin
 	/usd - show usd
