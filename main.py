@@ -115,11 +115,11 @@ def otvet_na_voice(message):
 		if fuzz.WRatio(bitc, querye) >= 50:
 			bot.send_message(message.chat.id, valut.get_bitok())
 
-		eur = ['евро', 'euro']
+		eur = ['евро']
 		if fuzz.WRatio(eur, querye) >= 50:
 			bot.send_message(message.chat.id, valut.get_eur())
 
-		usd = ['доллар', 'dollar']
+		usd = ['доллар']
 		if fuzz.WRatio(usd, querye) >= 50:
 			bot.send_message(message.chat.id, valut.get_usd())
 
