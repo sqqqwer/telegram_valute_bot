@@ -111,7 +111,7 @@ def otvet_na_voice(message):
 			name_user = querye.split('зовут')
 			bot.send_message(message.chat.id, f'приятно познакомиться, {name_user[1]}')
 
-		bitc = ['биткоин', 'bitcoin',]
+		bitc = ['биткоин', 'bitcoin', 'биткоин']
 		if fuzz.WRatio(bitc, querye) >= 65:
 			bot.send_message(message.chat.id, valut.get_bitok())
 
