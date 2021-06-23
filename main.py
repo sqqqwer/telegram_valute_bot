@@ -112,15 +112,15 @@ def otvet_na_voice(message):
 			bot.send_message(message.chat.id, f'приятно познакомиться,{name_user[1]}')
 
 		bitc = ['стоит', 'стоимость', 'сколько', 'биткоин', 'bitcoin', 'биткоина']
-		if fuzz.WRatio(bitc, querye) >= 80:
+		if fuzz.WRatio(bitc, querye) >= 90:
 			bot.send_message(message.chat.id, valut.get_bitok())
 
 		eur = ['стоит', 'стоимость', 'сколько', 'евро', 'euro']
-		if fuzz.WRatio(eur, querye) >= 80:
+		if fuzz.WRatio(eur, querye) >= 90:
 			bot.send_message(message.chat.id, valut.get_eur())
 
 		usd = ['стоит', 'стоимость', 'сколько', 'доллар', 'баксы', 'dollar']
-		if fuzz.WRatio(usd, querye) >= 80:
+		if fuzz.WRatio(usd, querye) >= 90:
 			bot.send_message(message.chat.id, valut.get_usd())
 
 	except Exception as error:
