@@ -125,7 +125,7 @@ def otvet_na_voice(message):
 
 	except Exception as error:
 		#сообщение при ошибке
-		bot.reply_to(message, 'ты ничего не сказал, или у меня произошла ошибка')
+		bot.reply_to(message, error)
 		print(error)
 		#bot.reply_to(message, error)
 
