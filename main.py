@@ -129,8 +129,7 @@ def otvet_na_voice(message):
 		print(error)
 		#bot.reply_to(message, error)
 
-q = map(int, input().split())
-print(q)
+
 #запуск бота/turn on bot
 bot.polling(none_stop=True)
 
