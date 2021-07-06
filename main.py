@@ -129,6 +129,7 @@ def otvet_na_voice(message):
 		print(error)
 		#bot.reply_to(message, error)
 
+input('скок два плюс два????')
 #запуск бота/turn on bot
 bot.polling(none_stop=True)
 
