@@ -3,20 +3,19 @@ import telebot
 import time
 
 from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 
 from pyffmpeg import FFmpeg
 import speech_recognition as sr
 
 from bitscrap import Valut
-from config import TOKEN, current_dir
+from config import TOKEN, voice_message_dir
 
 
 recognizer = sr.Recognizer()
 ff = FFmpeg()
-# инициализирование бота/bot initialization 
 bot = telebot.TeleBot(TOKEN)
 valut = Valut()
+
 
 @bot.message_handler(commands=['start', 'help'])
 def bitshower(message):
@@ -27,7 +26,6 @@ def bitshower(message):
 	/eur - show eur
 	/all - show all valute
 	/author - show author''')
-
 
 
 @bot.message_handler(commands=['all'])
@@ -58,71 +56,60 @@ def show_eur(message):
 
 
 @bot.message_handler(content_types=['voice'])
-def voice_responce(message):
+def voice_response(message):
 	try:
-		file_info = bot.get_file(message.voice.file_id)
-		#Скачивание файла/download file
-		downloaded_file = bot.download_file(file_info.file_path)
-		#путь для скачки файла/path to downloaded file
-		src = current_dir+'voicemessage/'+str(file_info.file_unique_id)+".ogg"
-		#создание скачаного файла/creating downloaded file
-		with open(src, 'wb') as new_file:
-			new_file.write(downloaded_file)
+		file_id = bot.get_file(message.voice.file_id)
+		voice_file = bot.download_file(file_id.file_path)
 
-		#предупреждения пользователя/
+		voice_file_path = voice_message_dir + str(file_id.file_unique_id)+".ogg"
+
+		with open(voice_file_path, 'wb') as new_file:
+			new_file.write(voice_file)
+
 		bot.reply_to(message, "Сообщение анализируется. Подождите...")
 		time.sleep(2)
-		#путь для конвертириемого файла/path for convert file
-		link = current_dir+'voicemessage/'+str(file_info.file_unique_id)+"wavedition.wav"
-		#конвертация/converting
-		output_file = ff.convert(src, link)
-		#открытие и рекорд конвер файла/creating converted file
-		with sr.WavFile(link) as voiceFile:
+
+		converted_voice_file_path = voice_message_dir + str(file_id.file_unique_id)+"wavedition.wav"
+
+		ff.convert(voice_file_path, converted_voice_file_path)
+
+		with sr.WavFile(converted_voice_file_path) as voiceFile:
 			audio = recognizer.record(voiceFile)
-		#дебаг принт/dubug print
-		print('аудио сообщение обработалось')
 
-		#воспринятие голоса роботом гугла/voice perception by google robot 
-		querye = recognizer.recognize_google(audio, language="ru-RU",show_all=False).lower()
+		query = recognizer.recognize_google(audio, language="ru-RU", show_all=False).lower()
 
-		#удаление ненужных файлов/deleting unnecessary files 
-		os.remove(src)
-		os.remove(link)
-		#реплай голосового сообщения и вывод текста произнесённого в голосовом сообщении
-		#replay a voice message and output the text spoken in a voice message 
-		bot.reply_to(message, querye)
+		os.remove(voice_file_path)
+		os.remove(converted_voice_file_path)
 
+		bot.reply_to(message, query)
 
-		#сравнение полученного текста из ключевых слов
+		#сравнение полученного текста и ключевых слов
 		#comparison of the received text from keywords 
 		hello = ['привет']
-		if fuzz.WRatio(hello, querye) >= 80  :
+		if fuzz.WRatio(hello, query) >= 80  :
 			bot.send_message(message.chat.id, 'привет я робот' )
 
 		namess = ['меня зовут']
-		if fuzz.WRatio(namess, querye) >= 80:
-			name_user = querye.split('зовут')
+		if fuzz.WRatio(namess, query) >= 80:
+			name_user = query.split('зовут')
 			bot.send_message(message.chat.id, f'приятно познакомиться, {name_user[1]}')
 
 		bitc = ['биткоин', 'bitcoin', 'биткоин']
-		if fuzz.WRatio(bitc, querye) >= 50:
+		if fuzz.WRatio(bitc, query) >= 58:
 			bot.send_message(message.chat.id, valut.get_bitok())
 
 		eur = ['евро']
-		if fuzz.WRatio(eur, querye) >= 50:
+		if fuzz.WRatio(eur, query) >= 58:
 			bot.send_message(message.chat.id, valut.get_eur())
 
 		usd = ['доллар']
-		if fuzz.WRatio(usd, querye) >= 50:
+		if fuzz.WRatio(usd, query) >= 58:
 			bot.send_message(message.chat.id, valut.get_usd())
 
 	except Exception as error:
-		#сообщение при ошибке
 		bot.reply_to(message, error)
 		print(error)
-		#bot.reply_to(message, error)
 
 
-#запуск бота/turn on bot
 bot.polling(none_stop=True)
 
