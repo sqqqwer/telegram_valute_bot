@@ -14,14 +14,12 @@ from config import TOKEN, current_dir
 
 recognizer = sr.Recognizer()
 ff = FFmpeg()
-valut = Valut()
-
 # инициализирование бота/bot initialization 
 bot = telebot.TeleBot(TOKEN)
-
+valut = Valut()
 
 @bot.message_handler(commands=['start', 'help'])
-def bitpokaz(message):
+def bitshower(message):
 	bot.send_message(message.chat.id,'''Commands:
 	/help - show all commands
 	/btk - show bitcoin
@@ -33,40 +31,35 @@ def bitpokaz(message):
 
 
 @bot.message_handler(commands=['all'])
-def bitpokaz(message):
-	print('произошла обработка показа всех валют')
-
+def show_all_valut(message):
 	bot.send_message(message.chat.id, valut.get_bitok() )
 	bot.send_message(message.chat.id, valut.get_usd() )
 	bot.send_message(message.chat.id, valut.get_eur() )
 
-#показ биткоина
+
 @bot.message_handler(commands=['btk'])
-def bitpokaz(message):
-	print('произошла обработка показа биткоина')
+def show_bitcoin(message):
 	bot.send_message(message.chat.id, valut.get_bitok() )
 
 
 @bot.message_handler(commands=['author'])
-def bitpokaz(message):
+def show_author(message):
 	bot.send_message(message.chat.id, 'Автор этого бота это - sqqqwer(я)' )
 
-#показ доллара
+
 @bot.message_handler(commands=['usd'])
-def bitpokaz(message):
+def show_usd(message):
 	bot.send_message(message.chat.id, valut.get_usd() )
 
-#показ евро
+
 @bot.message_handler(commands=['eur'])
-def bitpokaz(message):
+def show_eur(message):
 	bot.send_message(message.chat.id, valut.get_eur() )
 
 
-# при появлении голосового сообщения используется функция otvet_na_voice
 @bot.message_handler(content_types=['voice'])
-def otvet_na_voice(message):
+def voice_responce(message):
 	try:
-		#получение файла/getting file
 		file_info = bot.get_file(message.voice.file_id)
 		#Скачивание файла/download file
 		downloaded_file = bot.download_file(file_info.file_path)
