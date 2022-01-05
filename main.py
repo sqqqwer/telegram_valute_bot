@@ -18,7 +18,7 @@ valut = Valut()
 
 
 @bot.message_handler(commands=['start', 'help'])
-def bitshower(message):
+def show_all_valut(message):
 	bot.send_message(message.chat.id,'''Commands:
 	/help - show all commands
 	/btk - show bitcoin
