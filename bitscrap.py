@@ -25,7 +25,7 @@ class Valut:
 		bit = bit.text.replace(' ', '')
 		bit = bit.split('\n')
 
-		return f'стоимость биткоина - {bit} $'
+		return f'стоимость биткоина - {bit[1]} $'
 
 	def get_eth(self):
 		link = f'https://www.rbc.ru/crypto/currency/ethusd'
@@ -36,7 +36,7 @@ class Valut:
 		eth = eth.text.replace(' ', '')
 		eth = eth.split('\n')
 
-		return f'стоимость эфириума - {eth} $'
+		return f'стоимость эфириума - {eth[1]} $'
 
 	def get_usd(self):
 		link = f'https://quote.rbc.ru/ticker/72413'
