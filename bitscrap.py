@@ -5,53 +5,55 @@ from bs4 import BeautifulSoup
 # https://www.crummy.com/software/BeautifulSoup/bs4/doc.ru 
 
 
-
 class Valut:
 
-	def get_bitok(self):
-		#fake useragent
+	def responce_soup(self, link):
 		user = fake_useragent.UserAgent().random
 		header = {'user-agent': user}
-		# site url/ссылка на сайт
-		link = f'https://www.rbc.ru/crypto/currency/btcusd'
-		# получение всего html кода / take html code from site
+
 		responce = requests.get(link, headers=header).text
 		soup = BeautifulSoup(responce, 'html.parser')
-		# нахожу цену валюты / find cost of valute
-		bit = soup.find("div", class_ = "chart__subtitle js-chart-value")
 
-		# привожу полученный текст в нормальный вид
-		# bring the resulting text into a normal form
-		bit = bit.text.replace(' ', '')
-		bit = bit.split('\n')
+		return soup
+
+	def get_bit(self):
+		link = f'https://www.rbc.ru/crypto/currency/btcusd'
+		soup = self.responce_soup(link)
+
+		bit = soup.find("div", class_="chart__subtitle js-chart-value")
+
+		bit = bit.text.split(',')
+		bit = bit[0] + ',' + bit[1].split(' ')[0]
 		
-		return f'стоимость биткоина - {bit[1]}'
+		return f'стоимость биткоина - {bit} $'
+
+	def get_eth(self):
+		link = f'https://www.rbc.ru/crypto/currency/ethusd'
+		soup = self.responce_soup(link)
+
+		eth = soup.find("div", class_="chart__subtitle js-chart-value")
+
+		eth = eth.text.split(',')
+		eth = eth[0] + ',' + eth[1].split(' ')[0]
+
+		return f'стоимость эфириума - {eth} $'
 
 	def get_usd(self):
-		user = fake_useragent.UserAgent().random
-		header = {'user-agent': user}
 		link = f'https://quote.rbc.ru/ticker/72413'
+		soup = self.responce_soup(link)
 
-		responce = requests.get(link, headers=header).text
-		soup = BeautifulSoup(responce, 'html.parser')
-
-		usd = soup.find("span", class_ = "chart__info__sum")
+		usd = soup.find("span", class_="chart__info__sum")
 
 		usd = usd.text.split(',')
 
-		return f'стоимость доллара - {usd[0]}'
+		return f'стоимость доллара - {usd[0]} рублей'
 
 	def get_eur(self):
-		user = fake_useragent.UserAgent().random
-		header = {'user-agent': user}
 		link = f'https://quote.rbc.ru/ticker/72383'
+		soup = self.responce_soup(link)
 
-		responce = requests.get(link, headers=header).text
-		soup = BeautifulSoup(responce, 'html.parser')
-
-		eur = soup.find("span", class_ = "chart__info__sum")
+		eur = soup.find("span", class_="chart__info__sum")
 
 		eur = eur.text.split(',')
 
-		return f'стоимость евро - {eur[0]}'
-
+		return f'стоимость евро - {eur[0]} рублей'
