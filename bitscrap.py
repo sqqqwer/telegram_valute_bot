@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 class Valut:
 
 	def responce_soup(self, link):
-		user = fake_useragent.UserAgent().random
+		user = fake_useragent.UserAgent(cache=False).random
 		header = {'user-agent': user}
 
 		responce = requests.get(link, headers=header).text
@@ -22,9 +22,9 @@ class Valut:
 
 		bit = soup.find("div", class_="chart__subtitle js-chart-value")
 
-		bit = bit.text.split(',')
-		bit = bit[0] + ',' + bit[1].split(' ')[0]
-		
+		bit = bit.text.replace(' ', '')
+		bit = bit.split('\n')
+
 		return f'стоимость биткоина - {bit} $'
 
 	def get_eth(self):
@@ -33,8 +33,8 @@ class Valut:
 
 		eth = soup.find("div", class_="chart__subtitle js-chart-value")
 
-		eth = eth.text.split(',')
-		eth = eth[0] + ',' + eth[1].split(' ')[0]
+		eth = eth.text.replace(' ', '')
+		eth = eth.split('\n')
 
 		return f'стоимость эфириума - {eth} $'
 

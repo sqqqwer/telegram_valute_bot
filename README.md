@@ -4,6 +4,7 @@ Currency bot on Telegram with parsing and speech recognition (works on Heroku, l
 Commands:
   /help - show all commands
   /btk - show bitcoin
+  /eth - show ethereum
   /usd - show usd
   /eur - show eur
   /all - show all valute
