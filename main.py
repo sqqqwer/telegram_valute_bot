@@ -23,10 +23,12 @@ def show_command_list(message):
 	/help - show all commands
 	/btk - show bitcoin
 	/eth - show ethereum
-	/usd - show usd
+	/usd - show usdццssыва
 	/eur - show eur
 	/all - show all valuts
 	/author - show author''')
+
+
 
 
 @bot.message_handler(commands=['all'])
