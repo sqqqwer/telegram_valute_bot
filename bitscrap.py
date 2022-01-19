@@ -22,11 +22,10 @@ class Valut:
 
 		bit = soup.find("div", class_="chart__subtitle js-chart-value")
 
+		bit = bit.text.replace(' ', '')
+		bit = bit.split('\n')
 
-		bit = bit.text
-		# bit = bit[0] + ',' + bit[1].split(' ')[0]
-		return bit
-		# return f'стоимость биткоина - {bit} $'
+		return f'стоимость биткоина - {bit} $'
 
 	def get_eth(self):
 		link = f'https://www.rbc.ru/crypto/currency/ethusd'
@@ -34,8 +33,8 @@ class Valut:
 
 		eth = soup.find("div", class_="chart__subtitle js-chart-value")
 
-		eth = eth.text.split(',')
-		eth = eth[0] + ',' + eth[1].split(' ')[0]
+		eth = eth.text.replace(' ', '')
+		eth = eth.split('\n')
 
 		return f'стоимость эфириума - {eth} $'
 
