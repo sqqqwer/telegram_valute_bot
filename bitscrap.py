@@ -1,5 +1,7 @@
 import requests
+import threading
 import logging
+
 import fake_useragent
 from bs4 import BeautifulSoup
 
@@ -12,6 +14,36 @@ logger = logging.getLogger(__name__)
 
 
 class Valut:
+
+	bit_value = 0
+	eth_value = 0
+	usd_value = 0
+	eur_value = 0
+
+	def get_bit(self):
+		return f'стоимость биткоина - {self.bit_value} $'
+
+	def get_eth(self):
+		return f'стоимость эфириума - {self.eth_value} $'
+
+	def get_usd(self):
+		return f'стоимость доллара - {self.usd_value} рублей'
+
+	def get_eur(self):
+		return f'стоимость евро - {self.eur_value} рублей'
+
+	def start_parse_loop(self):
+		self.parse()
+
+	def parse(self):
+		self.bit_value = self.parse_bit()
+		self.eth_value = self.parse_eth()
+		self.usd_value = self.parse_usd()
+		self.eur_value = self.parse_eur()
+
+		threading.Timer(600, self.parse).start()
+
+		logger.info('Парсинг данных выполнен')
 
 	def responce_soup(self, link):
 		try:
@@ -26,7 +58,7 @@ class Valut:
 			logger.error("НЕ УДАЛОСЬ ПОДКЛЮЧИТЬСЯ К САЙТУ")
 			breakpoint()
 
-	def get_bit(self):
+	def parse_bit(self):
 		link = f'https://www.rbc.ru/crypto/currency/btcusd'
 		soup = self.responce_soup(link)
 
@@ -37,9 +69,9 @@ class Valut:
 
 		logger.info('Запрос на стоимость биткоина выполнен')
 
-		return f'стоимость биткоина - {bit[1]} $'
+		return bit[1]
 
-	def get_eth(self):
+	def parse_eth(self):
 		link = f'https://www.rbc.ru/crypto/currency/ethusd'
 		soup = self.responce_soup(link)
 
@@ -50,9 +82,9 @@ class Valut:
 
 		logger.info('Запрос на стоимость эфириума выполнен')
 
-		return f'стоимость эфириума - {eth[1]} $'
+		return eth[1]
 
-	def get_usd(self):
+	def parse_usd(self):
 		link = f'https://quote.rbc.ru/ticker/72413'
 		soup = self.responce_soup(link)
 
@@ -62,9 +94,9 @@ class Valut:
 
 		logger.info('Запрос на стоимость доллара выполнен')
 
-		return f'стоимость доллара - {usd[0]} рублей'
+		return usd[0]
 
-	def get_eur(self):
+	def parse_eur(self):
 		link = f'https://quote.rbc.ru/ticker/72383'
 		soup = self.responce_soup(link)
 
@@ -74,4 +106,5 @@ class Valut:
 
 		logger.info('Запрос на стоимость евро выполнен')
 
-		return f'стоимость евро - {eur[0]} рублей'
+		return eur[0]
+

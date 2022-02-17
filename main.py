@@ -122,4 +122,5 @@ def voice_response(message):
 		print(error)
 
 
+valut.start_parse_loop()
 bot.polling(none_stop=True)
