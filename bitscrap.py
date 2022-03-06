@@ -38,24 +38,23 @@ class Valut:
 
 	def parse(self):
 		threading.Timer(2, self.parse_bit).start()
-		threading.Timer(60, self.parse_eth).start()
-		threading.Timer(60, self.parse_usd).start()
-		threading.Timer(60, self.parse_eur).start()
+		threading.Timer(20, self.parse_eth).start()
+		threading.Timer(20, self.parse_usd).start()
+		threading.Timer(20, self.parse_eur).start()
 		logger.info('Парсинг данных выполнен')
 
 		threading.Timer(600, self.parse).start()
 
-	def responce_soup(self, link):
+	def responce_soup(self):
 		try:
 			user = user_agent.generate_user_agent()
 			header = {
-				'user-agent': user,
-				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-				'Accept-Encoding': 'gzip, deflate, br',
-				'Accept-Language': 'ru - RU, ru;q = 0.9, en - US;q = 0.8, en;q = 0.7;'
+				'user-agent': user
 			}
 
-			responce = requests.get(link, headers=header, timeout=30).text
+			link = f'https://www.profinance.ru/_quote_show_/java/'
+
+			responce = requests.get(link, headers=header, timeout=18).text
 			soup = BeautifulSoup(responce, 'html.parser')
 
 			return soup
@@ -64,51 +63,37 @@ class Valut:
 			breakpoint()
 
 	def parse_bit(self):
-		link = f'https://www.rbc.ru/crypto/currency/btcusd'
-		soup = self.responce_soup(link)
+		soup = self.responce_soup()
 
-		bit = soup.find("div", class_="chart__subtitle js-chart-value")
-
-		bit = bit.text.replace(' ', '')
-		bit = bit.split('\n')
+		bit = soup.find("td", id="b_XBT_USD").text
 
 		logger.info('Стоимость биткоина считана')
 
-		return bit[1]
+		return bit
 
 	def parse_eth(self):
-		link = f'https://www.rbc.ru/crypto/currency/ethusd'
-		soup = self.responce_soup(link)
+		soup = self.responce_soup()
 
-		eth = soup.find("div", class_="chart__subtitle js-chart-value")
-
-		eth = eth.text.replace(' ', '')
-		eth = eth.split('\n')
+		eth = soup.find("td", id="b_423").text
 
 		logger.info('Стоимость эфириума считана')
 
-		return eth[1]
+		return eth
 
 	def parse_usd(self):
-		link = f'https://quote.rbc.ru/ticker/72413'
-		soup = self.responce_soup(link)
+		soup = self.responce_soup()
 
-		usd = soup.find("span", class_="chart__info__sum")
-
-		usd = usd.text.split(',')
+		usd = soup.find("td", id="b_29").text
 
 		logger.info('Стоимость доллара считана')
 
-		return usd[0]
+		return usd
 
 	def parse_eur(self):
-		link = f'https://quote.rbc.ru/ticker/72383'
-		soup = self.responce_soup(link)
+		soup = self.responce_soup()
 
-		eur = soup.find("span", class_="chart__info__sum")
-
-		eur = eur.text.split(',')
+		eur = soup.find("td", id="b_30").text
 
 		logger.info('Стоимость евро считана')
 
-		return eur[0]
+		return eur
