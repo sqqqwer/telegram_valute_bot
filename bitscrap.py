@@ -2,7 +2,8 @@ import requests
 import threading
 import logging
 
-import fake_useragent
+import user_agent
+
 from bs4 import BeautifulSoup
 
 # https://www.crummy.com/software/BeautifulSoup/bs4/doc.ru
@@ -36,21 +37,20 @@ class Valut:
 		self.parse()
 
 	def parse(self):
-		self.bit_value = self.parse_bit()
-		self.eth_value = self.parse_eth()
-		self.usd_value = self.parse_usd()
-		self.eur_value = self.parse_eur()
+		threading.Timer(2, self.parse_bit).start()
+		threading.Timer(60, self.parse_eth).start()
+		threading.Timer(60, self.parse_usd).start()
+		threading.Timer(60, self.parse_eur).start()
+		logger.info('Парсинг данных выполнен')
 
 		threading.Timer(600, self.parse).start()
 
-		logger.info('Парсинг данных выполнен')
-
 	def responce_soup(self, link):
 		try:
-			user = fake_useragent.UserAgent(cache=False).random
+			user = user_agent.generate_user_agent()
 			header = {'user-agent': user}
 
-			responce = requests.get(link, headers=header).text
+			responce = requests.get(link, headers=header, timeout=30).text
 			soup = BeautifulSoup(responce, 'html.parser')
 
 			return soup
@@ -67,7 +67,7 @@ class Valut:
 		bit = bit.text.replace(' ', '')
 		bit = bit.split('\n')
 
-		logger.info('Запрос на стоимость биткоина выполнен')
+		logger.info('Стоимость биткоина считана')
 
 		return bit[1]
 
@@ -80,7 +80,7 @@ class Valut:
 		eth = eth.text.replace(' ', '')
 		eth = eth.split('\n')
 
-		logger.info('Запрос на стоимость эфириума выполнен')
+		logger.info('Стоимость эфириума считана')
 
 		return eth[1]
 
@@ -92,7 +92,7 @@ class Valut:
 
 		usd = usd.text.split(',')
 
-		logger.info('Запрос на стоимость доллара выполнен')
+		logger.info('Стоимость доллара считана')
 
 		return usd[0]
 
@@ -104,7 +104,6 @@ class Valut:
 
 		eur = eur.text.split(',')
 
-		logger.info('Запрос на стоимость евро выполнен')
+		logger.info('Стоимость евро считана')
 
 		return eur[0]
-
