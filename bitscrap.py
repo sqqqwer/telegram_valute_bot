@@ -37,10 +37,10 @@ class Valut:
 		self.parse()
 
 	def parse(self):
-		threading.Timer(2, self.parse_bit).start()
-		threading.Timer(20, self.parse_eth).start()
-		threading.Timer(20, self.parse_usd).start()
-		threading.Timer(20, self.parse_eur).start()
+		bit_value = self.parse_bit()
+		eth_value = self.parse_eth()
+		usd_value = self.parse_usd()
+		eur_value = self.parse_eur()
 		logger.info('Парсинг данных выполнен')
 
 		threading.Timer(600, self.parse).start()
