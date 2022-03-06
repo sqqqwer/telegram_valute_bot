@@ -22,16 +22,16 @@ class Valut:
 	eur_value = 0
 
 	def get_bit(self):
-		return f'стоимость биткоина - {self.bit_value} $'
+		return f'стоимость биткоина - {self.bit_value}'
 
 	def get_eth(self):
-		return f'стоимость эфириума - {self.eth_value} $'
+		return f'стоимость эфириума - {self.eth_value}'
 
 	def get_usd(self):
-		return f'стоимость доллара - {self.usd_value} рублей'
+		return f'стоимость доллара - {self.usd_value}'
 
 	def get_eur(self):
-		return f'стоимость евро - {self.eur_value} рублей'
+		return f'стоимость евро - {self.eur_value}'
 
 	def start_parse_loop(self):
 		self.parse()
@@ -45,16 +45,14 @@ class Valut:
 
 		threading.Timer(600, self.parse).start()
 
-	def responce_soup(self):
+	def responce_soup(self, link):
 		try:
 			user = user_agent.generate_user_agent()
 			header = {
 				'user-agent': user
 			}
 
-			link = f'https://www.profinance.ru/_quote_show_/java/'
-
-			responce = requests.get(link, headers=header, timeout=18).text
+			responce = requests.get(link, headers=header, timeout=15).text
 			soup = BeautifulSoup(responce, 'html.parser')
 
 			return soup
@@ -63,37 +61,41 @@ class Valut:
 			breakpoint()
 
 	def parse_bit(self):
-		soup = self.responce_soup()
+		link = f'https://www.finanz.ru/valyuty/btc-usd'
+		soup = self.responce_soup(link)
 
-		bit = soup.find("td", id="b_XBT_USD").text
+		bit = soup.find_all('div', class_="content")[1]
+		bit = bit.find('th').text
 
 		logger.info('Стоимость биткоина считана')
-
 		return bit
 
 	def parse_eth(self):
-		soup = self.responce_soup()
+		link = f'https://www.finanz.ru/valyuty/eth-usd'
+		soup = self.responce_soup(link)
 
-		eth = soup.find("td", id="b_423").text
+		eth = soup.find_all('div', class_="content")[1]
+		eth = eth.find('th').text
 
 		logger.info('Стоимость эфириума считана')
-
 		return eth
 
 	def parse_usd(self):
-		soup = self.responce_soup()
+		link = f'https://www.finanz.ru/valyuty/usd-rub'
+		soup = self.responce_soup(link)
 
-		usd = soup.find("td", id="b_29").text
+		usd = soup.find_all('div', class_="content")[1]
+		usd = usd.find('th').text
 
 		logger.info('Стоимость доллара считана')
-
 		return usd
 
 	def parse_eur(self):
-		soup = self.responce_soup()
+		link = f'https://www.finanz.ru/valyuty/eur-rub'
+		soup = self.responce_soup(link)
 
-		eur = soup.find("td", id="b_30").text
+		eur = soup.find_all('div', class_="content")[1]
+		eur = eur.find('th').text
 
 		logger.info('Стоимость евро считана')
-
 		return eur
