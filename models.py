@@ -1,5 +1,13 @@
+import enum
+
 from sqlalchemy.orm import Mapped, mapped_column
+
 from database import Base
+
+
+class Language(enum.Enum):
+    en = 'en'
+    ru = 'ru'
 
 
 class User(Base):
@@ -7,5 +15,6 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     chat_id: Mapped[int]
+    language: Mapped[Language]
     username: Mapped[str]
     first_name: Mapped[str]
