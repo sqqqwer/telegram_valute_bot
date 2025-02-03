@@ -1,8 +1,9 @@
 import asyncio
 
+from telebot.async_telebot import AsyncTeleBot
+
 from database.orm import ORM
 from settings import TELEGRAM_BOT_TOKEN
-from telebot.async_telebot import AsyncTeleBot
 
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
