@@ -3,7 +3,10 @@ import asyncio
 from telebot.async_telebot import AsyncTeleBot
 
 from database.orm import ORM
+from keyboards import (PROFILE_STR, REGISTER_STR, keyboard_menu_register,
+                       keyboard_menu_start)
 from settings import TELEGRAM_BOT_TOKEN
+from utils import handle_button_message
 
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -12,11 +15,14 @@ bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 async def start_message(message):
     await bot.send_message(
         message.chat.id,
-        'Напишите команду /register для регистрации.'
+        'Нажмите кнопку  для регистрации.',
+        reply_markup=keyboard_menu_register()
     )
 
 
-@bot.message_handler(commands=['register'])
+@bot.message_handler(
+        func=lambda message: handle_button_message(message, REGISTER_STR)
+)
 async def register(message):
     if message.from_user.is_bot:
         return await bot.send_message(
@@ -27,7 +33,8 @@ async def register(message):
     if user:
         return await bot.send_message(
             message.chat.id,
-            'Вы уже зарегистрированы!'
+            'Вы уже зарегистрированы!',
+            reply_markup=keyboard_menu_start()
         )
     await ORM.add_user(
         chat_id=message.from_user.id,
@@ -37,12 +44,15 @@ async def register(message):
     )
     return await bot.send_message(
             message.chat.id,
-            'Вы зарегестрированы! Можете пользоваться ботом!'
+            'Вы зарегестрированы! Можете пользоваться ботом!',
+            reply_markup=keyboard_menu_start()
         )
 
 
-@bot.message_handler(commands=['get_user'])
-async def get_user(message):
+@bot.message_handler(
+        func=lambda message: handle_button_message(message, PROFILE_STR)
+)
+async def profile(message):
     user = await ORM.get_user(message.from_user.id)
     if not user:
         return await bot.send_message(
