@@ -1,28 +1,57 @@
 from telebot import types
 
-REGISTER_STR = 'Зарегистрироваться'
-VALUTE_STR = 'Валюты'
-PROFILE_STR = 'Профиль'
-CRIPTOVALITE_STR = 'Криптавалюты'
-SUBSCRIBE = 'Подписаться на рассылку'
-ABOUT_STR = 'О боте'
+LOCALES = {
+    'REGISTER': {
+        'callback': 'REGISTER',
+        'en': 'Register',
+        'ru': 'Зарегистрироваться'
+    },
+    'VALUTE': {
+        'callback': 'VALUTE',
+        'en': 'Valute',
+        'ru': 'Валюты'
+    },
+    'PROFILE': {
+        'callback': 'PROFILE',
+        'en': 'Profile',
+        'ru': 'Профиль'
+    },
+    'CRYPTOVALUTE': {
+        'callback': 'CRYPTOVALUTE',
+        'en': 'Cryptovalute',
+        'ru': 'Криптовалюты'
+    },
+    'ABOUT': {
+        'callback': 'ABOUT',
+        'en': 'About bot',
+        'ru': 'О Боте'
+    },
+}
 
 
-def keyboard_menu_register():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(types.KeyboardButton(REGISTER_STR))
+def keyboard_menu_register(language_code):
+    keyboard = types.InlineKeyboardMarkup([[
+        types.InlineKeyboardButton(
+            LOCALES['REGISTER'][language_code],
+            callback_data=LOCALES['REGISTER']['callback']
+        ),
+    ]])
     return keyboard
 
 
-def keyboard_menu_start():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(
-        types.KeyboardButton(VALUTE_STR),
-        types.KeyboardButton(PROFILE_STR),
-        types.KeyboardButton(CRIPTOVALITE_STR),
-    )
-    keyboard.row(
-        types.KeyboardButton(SUBSCRIBE),
-        types.KeyboardButton(ABOUT_STR)
-    )
+def keyboard_menu_base(language_code):
+    keyboard = types.InlineKeyboardMarkup([[
+        types.InlineKeyboardButton(
+            LOCALES['VALUTE'][language_code],
+            callback_data=LOCALES['VALUTE']['callback']
+        ),
+        types.InlineKeyboardButton(
+            LOCALES['CRYPTOVALUTE'][language_code],
+            callback_data=LOCALES['CRYPTOVALUTE']['callback']
+        ),
+        types.InlineKeyboardButton(
+            LOCALES['PROFILE'][language_code],
+            callback_data=LOCALES['PROFILE']['callback']
+        ),
+    ]])
     return keyboard

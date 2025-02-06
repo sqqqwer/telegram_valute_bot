@@ -3,10 +3,9 @@ import asyncio
 from telebot.async_telebot import AsyncTeleBot
 
 from database.orm import ORM
-from keyboards import (PROFILE_STR, REGISTER_STR, keyboard_menu_register,
-                       keyboard_menu_start, VALUTE_STR)
+from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_register)
 from settings import TELEGRAM_BOT_TOKEN
-from utils import handle_button_message, get_valutes
+from utils import get_valutes
 
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -16,56 +15,55 @@ async def start_message(message):
     await bot.send_message(
         message.chat.id,
         'Нажмите кнопку  для регистрации.',
-        reply_markup=keyboard_menu_register()
+        reply_markup=keyboard_menu_register('ru')
     )
 
 
-@bot.message_handler(
-        func=lambda message: handle_button_message(message, REGISTER_STR)
+@bot.callback_query_handler(
+        func=lambda call: call.data == LOCALES['REGISTER']['callback']
 )
-async def register(message):
-    if message.from_user.is_bot:
-        return await bot.send_message(
-            message.chat.id,
-            'Ботам регистрироваться нельзя!'
+async def register(call):
+    if call.from_user.is_bot:
+        return await bot.edit_message_text(
+            'Ботам регистрироваться нельзя!',
+            chat_id=call.from_user.id, message_id=call.message.message_id
         )
-    user = await ORM.get_user(message.from_user.id)
+    user = await ORM.get_user(call.from_user.id)
     if user:
-        return await bot.send_message(
-            message.chat.id,
+        return await bot.edit_message_text(
             'Вы уже зарегистрированы!',
-            reply_markup=keyboard_menu_start()
+            reply_markup=keyboard_menu_base('ru'),
+            chat_id=call.from_user.id, message_id=call.message.message_id
         )
     await ORM.add_user(
-        chat_id=message.from_user.id,
-        username=message.from_user.username,
-        first_name=message.from_user.first_name,
-        language_code=message.from_user.language_code
+        chat_id=call.from_user.id,
+        username=call.from_user.username,
+        first_name=call.from_user.first_name,
+        language_code=call.from_user.language_code
     )
-    return await bot.send_message(
-            message.chat.id,
+    return await bot.edit_message_text(
             'Вы зарегестрированы! Можете пользоваться ботом!',
-            reply_markup=keyboard_menu_start()
+            reply_markup=keyboard_menu_base('ru'),
+            chat_id=call.from_user.id, message_id=call.message.message_id
         )
 
 
-@bot.message_handler(
-        func=lambda message: handle_button_message(message, PROFILE_STR)
+@bot.callback_query_handler(
+        func=lambda call: call.data == LOCALES['PROFILE']['callback']
 )
-async def get_profile(message):
-    user = await ORM.get_user(message.from_user.id)
-    if not user:
-        return await bot.send_message(
-            message.chat.id,
-            'Вы незарегестрированы! Напишите команду /start'
-        )
-    await bot.send_message(message.chat.id, f'вы {user.username}')
+async def get_profile(call):
+    user = await ORM.get_user(call.from_user.id)
+    await bot.edit_message_text(
+        f'вы {user.username}',
+        reply_markup=keyboard_menu_base('ru'),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
 
 
-@bot.message_handler(
-        func=lambda message: handle_button_message(message, VALUTE_STR)
+@bot.callback_query_handler(
+        func=lambda call: call.data == LOCALES['VALUTE']['callback']
 )
-async def get_valute(message):
+async def get_valute(call):
     valute = await get_valutes()
 
     message_to_send = ''
@@ -78,7 +76,11 @@ async def get_valute(message):
         )
         message_to_send += message_for_valute
 
-    await bot.send_message(message.chat.id, message_to_send)
+    await bot.edit_message_text(
+        message_to_send,
+        reply_markup=keyboard_menu_base('ru'),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
 
 
 try:
