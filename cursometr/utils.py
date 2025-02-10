@@ -1,5 +1,8 @@
 import aiohttp
 
+from database.orm import ORM
+
+
 # Потом поменять на редис
 fake_redis = {}
 
@@ -21,3 +24,12 @@ async def get_valutes():
             valutes_data = eval(valutes_data)['Valute']
             fake_redis['valute'] = valutes_data
     return valutes_data
+
+
+async def get_user_language(user_id):
+    language_code = fake_redis.get(f'user{user_id}|lang_code')
+    if not language_code:
+        user = await ORM.get_user(user_id)
+        language_code = user.language.value
+        fake_redis[f'user{user_id}|lang_code'] = language_code
+    return language_code

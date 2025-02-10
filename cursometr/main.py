@@ -3,9 +3,10 @@ import asyncio
 from telebot.async_telebot import AsyncTeleBot
 
 from database.orm import ORM
-from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_register)
+from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_language,
+                       keyboard_menu_register)
 from settings import TELEGRAM_BOT_TOKEN
-from utils import get_valutes
+from utils import get_user_language, get_valutes
 
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -15,7 +16,7 @@ async def start_message(message):
     await bot.send_message(
         message.chat.id,
         'Нажмите кнопку  для регистрации.',
-        reply_markup=keyboard_menu_register('ru')
+        reply_markup=keyboard_menu_register(message.from_user.language_code)
     )
 
 
@@ -23,16 +24,11 @@ async def start_message(message):
         func=lambda call: call.data == LOCALES['REGISTER']['callback']
 )
 async def register(call):
-    if call.from_user.is_bot:
-        return await bot.edit_message_text(
-            'Ботам регистрироваться нельзя!',
-            chat_id=call.from_user.id, message_id=call.message.message_id
-        )
     user = await ORM.get_user(call.from_user.id)
     if user:
         return await bot.edit_message_text(
             'Вы уже зарегистрированы!',
-            reply_markup=keyboard_menu_base('ru'),
+            reply_markup=keyboard_menu_base(user.language.value),
             chat_id=call.from_user.id, message_id=call.message.message_id
         )
     await ORM.add_user(
@@ -43,7 +39,7 @@ async def register(call):
     )
     return await bot.edit_message_text(
             'Вы зарегестрированы! Можете пользоваться ботом!',
-            reply_markup=keyboard_menu_base('ru'),
+            reply_markup=keyboard_menu_base(call.from_user.language_code),
             chat_id=call.from_user.id, message_id=call.message.message_id
         )
 
@@ -55,7 +51,7 @@ async def get_profile(call):
     user = await ORM.get_user(call.from_user.id)
     await bot.edit_message_text(
         f'вы {user.username}',
-        reply_markup=keyboard_menu_base('ru'),
+        reply_markup=keyboard_menu_base(user.language.value),
         chat_id=call.from_user.id, message_id=call.message.message_id
     )
 
@@ -65,6 +61,7 @@ async def get_profile(call):
 )
 async def get_valute(call):
     valute = await get_valutes()
+    language_code = await get_user_language(call.from_user.id)
 
     message_to_send = ''
     need_valutes = ('USD', 'EUR')
@@ -78,7 +75,36 @@ async def get_valute(call):
 
     await bot.edit_message_text(
         message_to_send,
-        reply_markup=keyboard_menu_base('ru'),
+        reply_markup=keyboard_menu_base(language_code),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+
+
+@bot.callback_query_handler(
+        func=lambda call: call.data == LOCALES['LANGUAGE']['callback']
+)
+async def get_language_keyboard(call):
+    # language_code = await get_user_language()
+
+    await bot.edit_message_text(
+        'Выберите язык:',
+        reply_markup=keyboard_menu_language(),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+
+
+@bot.callback_query_handler(
+        func=(lambda call:
+              eval(call.data)['callback']
+              == LOCALES['LANGUAGE_CHOISE']['callback'])
+)
+async def change_language(call):
+    language_code = eval(call.data)['language']
+    await ORM.change_user_language(call.from_user.id, language_code)
+
+    await bot.edit_message_text(
+        'Язык изменён',
+        reply_markup=keyboard_menu_base(language_code),
         chat_id=call.from_user.id, message_id=call.message.message_id
     )
 

@@ -1,7 +1,7 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 
-from database.models import User
 from database.decorators import with_session
+from database.models import Language, User
 
 
 class ORM:
@@ -31,3 +31,14 @@ class ORM:
         query = select(User).where(User.chat_id == chat_id)
         result = await session.execute(query)
         return result.scalars().first()
+
+    @staticmethod
+    @with_session
+    async def change_user_language(chat_id, language, session):
+        query = (
+            update(User)
+            .where(User.chat_id == chat_id)
+            .values(language=Language[language])
+        )
+        await session.execute(query)
+        await session.commit()
