@@ -39,6 +39,26 @@ LOCALES = {
         'en': '🇬🇧',
         'ru': '🇷🇺'
     },
+    'SETTINGS': {
+        'callback': 'SETTINGS',
+        'en': 'Settings',
+        'ru': 'Настройки'
+    },
+    'CHOISEVALUTE': {
+        'callback': 'CHOISEVALUTE',
+        'en': 'Select the displayed VALUTE',
+        'ru': 'Выбрать отображаемые Валюты'
+    },
+    'CHOISECRYPTOVALUTE': {
+        'callback': 'CHOISECRYPTOVALUTE',
+        'en': 'Select the displayed CRYPTO',
+        'ru': 'Выбрать отображаемые Криптовалюты'
+    },
+    'BACK': {
+        'callback': 'BACK',
+        'en': 'Back',
+        'ru': 'Назад'
+    },
 }
 
 
@@ -61,7 +81,8 @@ def keyboard_menu_base(language_code):
         types.InlineKeyboardButton(
             LOCALES['CRYPTOVALUTE'][language_code],
             callback_data=LOCALES['CRYPTOVALUTE']['callback']
-        ),
+        )
+    ], [
         types.InlineKeyboardButton(
             LOCALES['PROFILE'][language_code],
             callback_data=LOCALES['PROFILE']['callback']
@@ -70,7 +91,33 @@ def keyboard_menu_base(language_code):
             LOCALES['LANGUAGE'][language_code],
             callback_data=LOCALES['LANGUAGE']['callback']
         ),
-    ]])
+        types.InlineKeyboardButton(
+            LOCALES['SETTINGS'][language_code],
+            callback_data=LOCALES['SETTINGS']['callback']
+        ),
+    ]
+    ])
+    return keyboard
+
+
+def keyboard_menu_settings(language_code):
+    keyboard = types.InlineKeyboardMarkup([[
+        types.InlineKeyboardButton(
+            LOCALES['CHOISEVALUTE'][language_code],
+            callback_data=LOCALES['CHOISEVALUTE']['callback']
+        )
+    ], [
+        types.InlineKeyboardButton(
+            LOCALES['CHOISECRYPTOVALUTE'][language_code],
+            callback_data=LOCALES['CHOISECRYPTOVALUTE']['callback']
+        )
+    ], [
+        types.InlineKeyboardButton(
+            LOCALES['BACK'][language_code],
+            callback_data=LOCALES['BACK']['callback']
+        )
+    ]
+    ])
     return keyboard
 
 

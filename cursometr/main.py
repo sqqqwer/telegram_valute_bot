@@ -4,7 +4,7 @@ from telebot.async_telebot import AsyncTeleBot
 
 from database.orm import ORM
 from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_language,
-                       keyboard_menu_register)
+                       keyboard_menu_register, keyboard_menu_settings)
 from settings import TELEGRAM_BOT_TOKEN
 from utils import get_user_language, get_valutes
 
@@ -64,7 +64,8 @@ async def get_valute(call):
     language_code = await get_user_language(call.from_user.id)
 
     message_to_send = ''
-    need_valutes = ('USD', 'EUR')
+    need_valutes = 'USD EUR '
+    need_valutes = need_valutes.split()
     for code in need_valutes:
         valute_dict = valute[code]
         message_for_valute = (
@@ -81,10 +82,36 @@ async def get_valute(call):
 
 
 @bot.callback_query_handler(
+        func=lambda call: call.data == LOCALES['BACK']['callback']
+)
+async def get_base_keyboard(call):
+    language_code = await get_user_language(call.from_user.id)
+
+    await bot.edit_message_text(
+        'Выберите действие:',
+        reply_markup=keyboard_menu_base(language_code),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+
+
+@bot.callback_query_handler(
+        func=lambda call: call.data == LOCALES['SETTINGS']['callback']
+)
+async def get_settings_keyboard(call):
+    language_code = await get_user_language(call.from_user.id)
+
+    await bot.edit_message_text(
+        'Настройки:',
+        reply_markup=keyboard_menu_settings(language_code),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+
+
+@bot.callback_query_handler(
         func=lambda call: call.data == LOCALES['LANGUAGE']['callback']
 )
 async def get_language_keyboard(call):
-    # language_code = await get_user_language()
+    # language_code = await get_user_language(call.from_user.id)
 
     await bot.edit_message_text(
         'Выберите язык:',
