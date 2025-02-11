@@ -2,6 +2,7 @@ from sqlalchemy import select, update
 
 from database.decorators import with_session
 from database.models import Language, User
+from fake_redis import fake_redis
 
 
 class ORM:
@@ -40,5 +41,6 @@ class ORM:
             .where(User.chat_id == chat_id)
             .values(language=Language[language])
         )
+        fake_redis[f'user{chat_id}|lang_code'] = language
         await session.execute(query)
         await session.commit()

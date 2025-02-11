@@ -1,10 +1,8 @@
 import aiohttp
 
 from database.orm import ORM
-
-
-# Потом поменять на редис
-fake_redis = {}
+from fake_redis import fake_redis
+# Потом поменять на насоящий редис
 
 
 def handle_button_message(message, button):
