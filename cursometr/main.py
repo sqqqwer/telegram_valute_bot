@@ -6,7 +6,7 @@ from database.orm import ORM
 from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_language,
                        keyboard_menu_register, keyboard_menu_settings)
 from settings import TELEGRAM_BOT_TOKEN
-from utils import get_user_language, get_valutes
+from utils import get_user_language, get_valutes, get_crypto_data
 
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -77,6 +77,29 @@ async def get_valute(call):
     await bot.edit_message_text(
         message_to_send,
         reply_markup=keyboard_menu_base(language_code),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+
+
+@bot.callback_query_handler(
+        func=lambda call: call.data == LOCALES['CRYPTOVALUTE']['callback']
+)
+async def get_crypto(call):
+    user = await ORM.get_user(call.from_user.id)
+    need_crypto = user.crypto
+    crypto_data = await get_crypto_data(need_crypto)
+
+    message_to_send = ''
+    for crypto in crypto_data:
+        message_for_crypto = (
+            f"{crypto['name']} -"
+            f" {crypto['price']}\n"
+        )
+        message_to_send += message_for_crypto
+
+    await bot.edit_message_text(
+        message_to_send,
+        reply_markup=keyboard_menu_base(user.language.value),
         chat_id=call.from_user.id, message_id=call.message.message_id
     )
 
