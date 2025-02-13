@@ -25,19 +25,13 @@ async def get_valutes():
     return valutes_data
 
 
-async def get_crypto_data(contracts):
+async def _get_crypto_data(endpoint, crypto_id_list):
     result = []
-    contracts = contracts.split()
-    async with aiohttp.ClientSession() as session:
-        for contract in contracts:
-            crypto_data = fake_redis.get(contract)
-            if not crypto_data:
-                request = await session.get(
-                    (
-                        'https://api.coingecko.com/api/v3/coins/id/contract/'
-                        f'{contract}'
-                    )
-                )
+    for crypto_id in crypto_id_list:
+        crypto_data = fake_redis.get(crypto_id)
+        if not crypto_data:
+            async with aiohttp.ClientSession() as session:
+                request = await session.get(endpoint + crypto_id)
                 if request.status not in (200, 304):
                     raise Exception('Сервис недоступен.')
                 crypto_data = await request.text()
@@ -46,8 +40,29 @@ async def get_crypto_data(contracts):
                     'name': crypto_data['name'],
                     'price': crypto_data['market_data']['current_price']['rub']
                 }
-                fake_redis[contract] = crypto_data
-            result.append(crypto_data)
+                fake_redis[crypto_id] = crypto_data
+        result.append(crypto_data)
+    return result
+
+
+async def _get_static_crypto_data():
+    static_crypto_id = ('bitcoin', 'ethereum')
+    result = await _get_crypto_data(
+        'https://api.coingecko.com/api/v3/coins/',
+        static_crypto_id
+        )
+    return result
+
+
+async def get_crypto_data(contracts):
+    result = []
+    contracts = contracts.split()
+    result = await _get_static_crypto_data()
+    crypto_data = await _get_crypto_data(
+        'https://api.coingecko.com/api/v3/coins/id/contract/',
+        contracts
+    )
+    result.extend(crypto_data)
     return result
 
 
