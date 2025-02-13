@@ -3,7 +3,6 @@ import enum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.database import Base
-from settings import ETHEREUM_CONTRACT
 
 
 class Language(enum.Enum):
@@ -20,4 +19,4 @@ class User(Base):
     username: Mapped[str]
     first_name: Mapped[str]
     valutes: Mapped[str] = mapped_column(default='USD EUR ')
-    crypto: Mapped[str] = mapped_column(default=ETHEREUM_CONTRACT)
+    crypto: Mapped[str] = mapped_column(default=' ')
