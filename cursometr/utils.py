@@ -3,6 +3,7 @@ import json
 
 from database.orm import ORM
 from fake_redis import fake_redis
+from settings import CRYPTO_ENDPOINT_COINS_ID, CRYPTO_ENDPOINT_CONTRACTS
 # Потом поменять на насоящий редис
 
 
@@ -25,7 +26,7 @@ async def get_valutes():
     return valutes_data
 
 
-async def _get_crypto_data(endpoint, crypto_id_list):
+async def get_single_crypto_api_data(endpoint, crypto_id_list):
     result = []
     for crypto_id in crypto_id_list:
         crypto_data = fake_redis.get(crypto_id)
@@ -47,8 +48,8 @@ async def _get_crypto_data(endpoint, crypto_id_list):
 
 async def _get_static_crypto_data():
     static_crypto_id = ('bitcoin', 'ethereum')
-    result = await _get_crypto_data(
-        'https://api.coingecko.com/api/v3/coins/',
+    result = await get_single_crypto_api_data(
+        CRYPTO_ENDPOINT_COINS_ID,
         static_crypto_id
         )
     return result
@@ -58,18 +59,27 @@ async def get_crypto_data(contracts):
     result = []
     contracts = contracts.split()
     result = await _get_static_crypto_data()
-    crypto_data = await _get_crypto_data(
-        'https://api.coingecko.com/api/v3/coins/id/contract/',
+    crypto_data = await get_single_crypto_api_data(
+        CRYPTO_ENDPOINT_CONTRACTS,
         contracts
     )
     result.extend(crypto_data)
     return result
 
 
-async def get_user_language(user_id):
+async def get_user_language_field(user_id):
     language_code = fake_redis.get(f'user{user_id}|lang_code')
     if not language_code:
         user = await ORM.get_user(user_id)
         language_code = user.language.value
         fake_redis[f'user{user_id}|lang_code'] = language_code
     return language_code
+
+
+async def get_user_crypto_field(user_id):
+    crypto = fake_redis.get(f'user{user_id}|crypto')
+    if not crypto:
+        user = await ORM.get_user(user_id)
+        crypto = user.crypto
+        fake_redis[f'user{user_id}|crypto'] = crypto
+    return crypto

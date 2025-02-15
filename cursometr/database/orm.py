@@ -44,3 +44,34 @@ class ORM:
         fake_redis[f'user{chat_id}|lang_code'] = language
         await session.execute(query)
         await session.commit()
+
+    @staticmethod
+    @with_session
+    async def add_crypto_contract(chat_id, contract, session):
+        query = (
+            update(User)
+            .where(User.chat_id == chat_id)
+            .values(crypto=User.crypto + ' ' + contract)
+        )
+        await session.execute(query)
+        await session.commit()
+
+    @staticmethod
+    @with_session
+    async def delete_crypto_contract(chat_id, contract, session):
+        query = select(User).where(User.chat_id == chat_id)
+        result = await session.execute(query)
+        user = result.scalars().first()
+        crypto = user.crypto.split()
+
+        if contract not in crypto:
+            return False
+
+        crypto.remove(contract)
+        result_crypto = ' '.join(crypto)
+        user.crypto = result_crypto
+        fake_redis[f'user{chat_id}|crypto'] = result_crypto
+
+        await session.execute(query)
+        await session.commit()
+        return True

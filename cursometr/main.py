@@ -3,10 +3,12 @@ import asyncio
 from telebot.async_telebot import AsyncTeleBot
 
 from database.orm import ORM
-from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_language,
-                       keyboard_menu_register, keyboard_menu_settings)
-from settings import TELEGRAM_BOT_TOKEN
-from utils import get_user_language, get_valutes, get_crypto_data
+from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_crypto_edit,
+                       keyboard_menu_language, keyboard_menu_register,
+                       keyboard_menu_settings)
+from settings import CRYPTO_ENDPOINT_CONTRACTS, TELEGRAM_BOT_TOKEN
+from utils import (get_single_crypto_api_data, get_user_crypto_field, get_user_language_field,
+                   get_valutes, get_crypto_data)
 
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
@@ -61,7 +63,7 @@ async def get_profile(call):
 )
 async def get_valute(call):
     valute = await get_valutes()
-    language_code = await get_user_language(call.from_user.id)
+    language_code = await get_user_language_field(call.from_user.id)
 
     message_to_send = ''
     need_valutes = 'USD EUR '
@@ -108,7 +110,7 @@ async def get_crypto(call):
         func=lambda call: call.data == LOCALES['BACK']['callback']
 )
 async def get_base_keyboard(call):
-    language_code = await get_user_language(call.from_user.id)
+    language_code = await get_user_language_field(call.from_user.id)
 
     await bot.edit_message_text(
         'Выберите действие:',
@@ -121,7 +123,7 @@ async def get_base_keyboard(call):
         func=lambda call: call.data == LOCALES['SETTINGS']['callback']
 )
 async def get_settings_keyboard(call):
-    language_code = await get_user_language(call.from_user.id)
+    language_code = await get_user_language_field(call.from_user.id)
 
     await bot.edit_message_text(
         'Настройки:',
@@ -134,11 +136,69 @@ async def get_settings_keyboard(call):
         func=lambda call: call.data == LOCALES['LANGUAGE']['callback']
 )
 async def get_language_keyboard(call):
-    # language_code = await get_user_language(call.from_user.id)
+    # language_code = await get_user_language_field(call.from_user.id)
 
     await bot.edit_message_text(
         'Выберите язык:',
         reply_markup=keyboard_menu_language(),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+
+
+@bot.callback_query_handler(
+        func=lambda call:
+        call.data == LOCALES['CHOISECRYPTOVALUTE_ADD']['callback']
+)
+async def add_crypto_contract(call):
+    # language_code = await get_user_language_field(call.from_user.id)
+    message = await bot.edit_message_text(
+        'Введите контракт:',
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+    # реализовать стейт машину
+
+
+@bot.callback_query_handler(
+        func=lambda call:
+        call.data == LOCALES['CHOISECRYPTOVALUTE_MENU']['callback']
+)
+async def get_displayed_crypto_keyboard(call):
+    language_code = await get_user_language_field(call.from_user.id)
+    crypto_contracts = await get_user_crypto_field(call.from_user.id)
+
+    await bot.edit_message_text(
+        'Удалите или добавьте новые контракты:',
+        reply_markup=keyboard_menu_crypto_edit(
+            language_code, crypto_contracts
+        ),
+        chat_id=call.from_user.id, message_id=call.message.message_id
+    )
+
+
+@bot.callback_query_handler(
+        func=(lambda call:
+              eval(call.data)['callback']
+              == LOCALES['CHOISECRYPTOVALUTE_DELETE']['callback'])
+)
+async def delete_crypto_contract(call):
+    crypto_contracts = await get_user_crypto_field(call.from_user.id)
+    contract_id = eval(call.data)['contract_id']
+    contract = crypto_contracts.split()[contract_id]
+
+    language_code = await get_user_language_field(call.from_user.id)
+    success = await ORM.delete_crypto_contract(call.from_user.id, contract)
+    crypto_contracts = await get_user_crypto_field(call.from_user.id)
+
+    message = f'Контракт {contract} удалён.\nВыберите действие:'
+
+    if not success:
+        message = f'Контракта {contract} не существует.\nВыберите действие:'
+
+    await bot.edit_message_text(
+        message,
+        reply_markup=keyboard_menu_crypto_edit(
+            language_code, crypto_contracts
+        ),
         chat_id=call.from_user.id, message_id=call.message.message_id
     )
 
