@@ -49,16 +49,26 @@ LOCALES = {
         'en': 'Select the displayed VALUTE',
         'ru': 'Выбрать отображаемые Валюты'
     },
-    'CHOISECRYPTOVALUTE': {
+    'CHOISECRYPTOVALUTE_MENU': {
         'callback': 'CHOISECRYPTOVALUTE',
         'en': 'Select the displayed CRYPTO',
         'ru': 'Выбрать отображаемые Криптовалюты'
+    },
+    'CHOISECRYPTOVALUTE_ADD': {
+        'callback': 'CHOISECRYPTOVALUTE_ADD',
+        'en': 'Add new ➕',
+        'ru': 'Добавить ➕'
     },
     'BACK': {
         'callback': 'BACK',
         'en': 'Back',
         'ru': 'Назад'
     },
+    'CHOISECRYPTOVALUTE_DELETE': {
+        'callback': 'CHOISECRYPTOVALUTE_DELETE',
+        'en': 'Delete 🗑️',
+        'ru': 'Удалить 🗑️'
+    }
 }
 
 
@@ -108,8 +118,8 @@ def keyboard_menu_settings(language_code):
         )
     ], [
         types.InlineKeyboardButton(
-            LOCALES['CHOISECRYPTOVALUTE'][language_code],
-            callback_data=LOCALES['CHOISECRYPTOVALUTE']['callback']
+            LOCALES['CHOISECRYPTOVALUTE_MENU'][language_code],
+            callback_data=LOCALES['CHOISECRYPTOVALUTE_MENU']['callback']
         )
     ], [
         types.InlineKeyboardButton(
@@ -118,6 +128,48 @@ def keyboard_menu_settings(language_code):
         )
     ]
     ])
+    return keyboard
+
+
+def keyboard_menu_crypto_edit(language_code, contracts):
+    contracts = contracts.split()
+    inline_keys = []
+
+    for i in range(len(contracts)):
+        inline_keys.append(
+            [
+                types.InlineKeyboardButton(
+                    contracts[i],
+                    callback_data='no_data'
+                ),
+                types.InlineKeyboardButton(
+                    LOCALES['CHOISECRYPTOVALUTE_DELETE'][language_code],
+                    callback_data=str({
+                        'callback': LOCALES[
+                            'CHOISECRYPTOVALUTE_DELETE']['callback'],
+                        'contract_id': i
+                    })
+                ),
+            ]
+        )
+    inline_keys.extend(
+        [
+            [
+                types.InlineKeyboardButton(
+                    LOCALES['CHOISECRYPTOVALUTE_ADD'][language_code],
+                    callback_data=LOCALES['CHOISECRYPTOVALUTE_ADD']['callback']
+                )
+            ],
+            [
+                types.InlineKeyboardButton(
+                    LOCALES['BACK'][language_code],
+                    callback_data=LOCALES['BACK']['callback']
+                )
+            ]
+        ]
+    )
+    keyboard = types.InlineKeyboardMarkup(inline_keys)
+
     return keyboard
 
 
