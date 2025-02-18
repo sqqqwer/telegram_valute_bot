@@ -1,6 +1,9 @@
 import asyncio
 
 from telebot.async_telebot import AsyncTeleBot
+from telebot.asyncio_filters import StateFilter
+from telebot.asyncio_storage import StateMemoryStorage
+from telebot.asyncio_handler_backends import State, StatesGroup
 
 from database.orm import ORM
 from keyboards import (LOCALES, keyboard_menu_base, keyboard_menu_crypto_edit,
@@ -10,7 +13,11 @@ from settings import CRYPTO_ENDPOINT_CONTRACTS, TELEGRAM_BOT_TOKEN
 from utils import (get_single_crypto_api_data, get_user_crypto_field, get_user_language_field,
                    get_valutes, get_crypto_data)
 
-bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
+bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN, state_storage=StateMemoryStorage())
+
+class AddStates(StatesGroup):
+    crypto_contract = State()
+    valute_code = State()
 
 
 @bot.message_handler(commands=['start'])
@@ -151,11 +158,31 @@ async def get_language_keyboard(call):
 )
 async def add_crypto_contract(call):
     # language_code = await get_user_language_field(call.from_user.id)
-    message = await bot.edit_message_text(
-        'Введите контракт:',
+    await bot.set_state(
+        call.from_user.id, AddStates.crypto_contract, call.from_user.id
+    )
+    await bot.edit_message_text(
+        'Введите контракт Ethereum или BNB Smart Chain (BEP20):',
         chat_id=call.from_user.id, message_id=call.message.message_id
     )
-    # реализовать стейт машину
+
+
+@bot.message_handler(
+        state=AddStates.crypto_contract
+)
+async def add_crypto_contract_write(message):
+    await ORM.add_crypto_contract(message.chat.id, message.text)
+    await bot.delete_state(message.from_user.id, message.chat.id)
+
+    language_code = await get_user_language_field(message.from_user.id)
+    crypto_contracts = await get_user_crypto_field(message.from_user.id)
+    await bot.send_message(
+        message.chat.id,
+        'Контракт сохранён.',
+        reply_markup=keyboard_menu_crypto_edit(
+            language_code, crypto_contracts
+        )
+    )
 
 
 @bot.callback_query_handler(
@@ -218,6 +245,8 @@ async def change_language(call):
         chat_id=call.from_user.id, message_id=call.message.message_id
     )
 
+
+bot.add_custom_filter(StateFilter(bot))
 
 try:
     asyncio.run(bot.polling(interval=2))
