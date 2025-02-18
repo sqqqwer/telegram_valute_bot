@@ -15,4 +15,6 @@ DATABASE_URL = f'sqlite+aiosqlite:///{PROHECT_DIR}/{DATABASE_NAME}'
 
 
 CRYPTO_ENDPOINT_COINS_ID = 'https://api.coingecko.com/api/v3/coins/'
-CRYPTO_ENDPOINT_CONTRACTS = 'https://api.coingecko.com/api/v3/coins/id/contract/'
+CRYPTO_STANDART_COIN_ID = ('bitcoin', 'ethereum')
+CRYPTO_ENDPOINT_CONTRACTS = 'https://api.coingecko.com/api/v3/coins/{0}/contract/'
+CRYPTO_CONTRACTS_PLACES = ('ethereum', 'binance-smart-chain')
